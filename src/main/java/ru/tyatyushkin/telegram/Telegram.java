@@ -1,6 +1,8 @@
 package ru.tyatyushkin.telegram;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -16,14 +18,17 @@ import java.nio.charset.StandardCharsets;
 
 public class Telegram {
     private static final String API_URL = "https://api.telegram.org/bot";
+    private static String s_token;
     private final String token;
     private static int lastUpdateId = 0;
 
+
     public Telegram(String token) {
         this.token = token;
+        s_token = token;
     }
 
-    public void setLastUpdateId(int updateId) {
+    public static void setLastUpdateId(int updateId) {
         lastUpdateId = updateId;
     }
 
@@ -58,6 +63,43 @@ public class Telegram {
         }
 
         return null;
+    }
+
+    public static void getSendMessage(String chatId, String message) {
+        try {
+            URL url = new URL(API_URL + s_token + "/sendMessage?chat_id=" + chatId + "&text=" + message);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.getInputStream().close();
+            conn.disconnect();
+        } catch (Exception e) {
+            LoggerConfig.logger.error("Неправильный запрос: ", e );
+        }
+    }
+
+    public static void sendReplyMessage(String message) {
+        try {
+            URL url = new URL(API_URL + s_token + "/sendMessage");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json; utf-8");
+            conn.setDoOutput(true);
+
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] input = message.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                LoggerConfig.logger.info("Reply Message sent successfully.");
+            } else {
+                LoggerConfig.logger.error("Failed to send reply message. Response Code: {}", responseCode);
+            }
+
+        } catch (Exception e) {
+            LoggerConfig.logger.error("Ошибке: ", e);
+        }
     }
 
     public void sendMessage(String chatId, String message) {
@@ -119,6 +161,8 @@ public class Telegram {
                 os.write(input, 0, input.length);
             }
 
+
+
             // Проверяем код ответа сервера
             int responseCode = conn.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -140,6 +184,31 @@ public class Telegram {
             conn.disconnect();
         } catch (Exception e) {
             e.printStackTrace(System.out);
+        }
+    }
+
+    public static void sendPhotoWithCaption(String message) {
+        try {
+            URL url = new URL(API_URL + s_token + "/sendPhoto");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json; utf-8");
+            conn.setDoOutput(true);
+
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] input = message.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                LoggerConfig.logger.info("Reply Message sent successfully.");
+            } else {
+                LoggerConfig.logger.error("Failed to send reply message. Response Code: ", responseCode);
+            }
+
+        } catch (Exception e) {
+            LoggerConfig.logger.error("Ошибке: ", e);
         }
     }
 
@@ -184,6 +253,30 @@ public class Telegram {
         } catch (JsonProcessingException e) {
             e.printStackTrace(System.out);
         }
+    }
+
+    public void inlineButton(String chatId) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            //Создаем кнопку
+            ObjectNode linkButton = objectMapper.createObjectNode();
+            linkButton.put("text", "Перейти на tyatyushkin.ru");
+            linkButton.put("url", "https://tyatyushkin.ru");
+            // Создаем строку для кнопок
+            ArrayNode buttonNode = objectMapper.createArrayNode();
+            buttonNode.add(linkButton);
+            // Создаем массив для кнопок
+            ArrayNode inlineKeyboardArray = objectMapper.createArrayNode();
+            inlineKeyboardArray.add(buttonNode);
+            // Создаем корневой узел JSON - InlineKeyboardMarkup
+            ObjectNode inlineKeyboardMarkup = objectMapper.createObjectNode();
+            inlineKeyboardMarkup.set("inline_keyboard",inlineKeyboardArray);
+
+            System.out.println(inlineKeyboardMarkup.toPrettyString());
+        } catch (Exception e) {
+            LoggerConfig.logger.error("Ошибка: {}", String.valueOf(e));
+        }
+
     }
 
     public void sendReplyButton(String chatId) {

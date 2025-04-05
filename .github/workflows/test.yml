@@ -65,9 +65,12 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: Copy docker-compose.yml to server
+        run: scp -o StrictHostKeyChecking=no docker-compose.yml root@${{ vars.BASTION }}:/opt/compose/telegram-beta/docker-compose.yml
+
       - name: Deploy to server
         run: |
           ssh -o StrictHostKeyChecking=no root@${{ vars.BASTION }} '
           docker stop telegram-beta || true && docker rm telegram-beta || true &&
           docker pull tyatyushkin/telegram:${{ env.VERSION }}-beta &&
-          docker run -e TG_TOKEN=${{ secrets.TG_TOKEN_TEST }} -e X_TOKEN=${{ secrets.X_TOKEN}} -e CHAT_ID=${{ secrets.CHAT_ID_TEST }} -e X_USERNAME=${{ vars.X_USERNAME }} -e TEST_MODE=${{ vars.TEST_MODE }} -e W_TOKEN=${{ secrets.W_TOKEN }} -d --name telegram-beta tyatyushkin/telegram:${{ env.VERSION }}-beta'
+          docker run -e TG_TOKEN=${{ secrets.TG_TOKEN_TEST }} -e X_TOKEN=${{ secrets.X_TOKEN}} -e CHAT_ID=${{ secrets.CHAT_ID_TEST }} -e X_USERNAME=${{ vars.X_USERNAME }} -e Y_TOKEN=${{ secrets.Y_TOKEN}} -e CHANNEL_ID=${{ vars.CHANNEL_ID }} -e TEST_MODE=${{ vars.TEST_MODE }} -e W_TOKEN=${{ secrets.W_TOKEN }} -d --name telegram-beta tyatyushkin/telegram:${{ env.VERSION }}-beta'

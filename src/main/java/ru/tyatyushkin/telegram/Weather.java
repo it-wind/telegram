@@ -1,6 +1,7 @@
 package ru.tyatyushkin.telegram;
 
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -10,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Weather {
-    private static String token;
+    private final String token;
 
     private static final Map<String, String> conditionTranslations = new HashMap<>();
 
@@ -46,13 +47,11 @@ public class Weather {
     public String getWeather() {
         try {
             StringBuilder content = new StringBuilder();
-            //https://yandex.ru/pogoda/?lat=53.40716171&lon=58.98028946&via=srp
-            URL url = new URL("https://api.weather.yandex.ru/v2/forecast?lat=53.40716171&lon=58.98028946&lang=ru_RU");
+            //URL url = new URL("https://api.weather.yandex.ru/v2/forecast?lat=53.40716171&lon=58.98028946&lang=ru_RU");
+            URL url = new URL("https://api.openweathermap.org/data/2.5/weather?lat=53.40716171&lon=58.98028946&appid=" + token + "&lang=ru&units=metric");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
-            connection.setRequestProperty("X-Yandex-Weather-Key", token);
             int responseCode = connection.getResponseCode();
-            System.out.println(responseCode);
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String inputLine;
@@ -66,17 +65,16 @@ public class Weather {
                 System.out.println("Error: " + responseCode + " - " + connection.getResponseMessage());
             }
             connection.disconnect();
-            JSONObject jsonResponse = new JSONObject(content.toString());
-            JSONObject fact = jsonResponse.getJSONObject("fact");
 
-            double temp = fact.getDouble("temp");
-            String condition = fact.getString("condition");
-            String translateCondition = translateCondition(condition);
-            double windSpeed = fact.getDouble("wind_speed");
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(content.toString());
 
-            String weather = "DEMO режим погоды от Yandex, работает 7 дней\n Температура в Магнитогорске: " + temp
-                    + ", скорость ветра: " + windSpeed + ", Состояние: " + translateCondition;
-            return weather;
+            String condition = rootNode.get("weather").get(0).get("description").asText();
+            String temp = rootNode.get("main").get("temp").asText();
+            String windSpeed = rootNode.get("wind").get("speed").asText();
+
+            return "Температура в Магнитогорске: " + temp
+                    + ", скорость ветра: " + windSpeed + ", Состояние: " + condition;
         } catch (Exception e) {
             e.printStackTrace(System.out);
         }
