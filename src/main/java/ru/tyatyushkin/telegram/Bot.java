@@ -218,6 +218,9 @@ public class Bot {
             if (text.toLowerCase().contains("ебунькина")) {
                 telegram.sendMessage(chatId, "Дезигнер илит - ночами не спит");
             }
+            if (text.toLowerCase().startsWith("сэр")) {
+                telegram.sendMessage(chatId, "Сээээр?!");
+            }
         }
     }
 
