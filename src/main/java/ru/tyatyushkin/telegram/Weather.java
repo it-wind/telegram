@@ -44,11 +44,11 @@ public class Weather {
         this.token = w_token;
     }
 
-    public String getWeather() {
+    public String getWeather(String city, String lat, String lon) {
         try {
             StringBuilder content = new StringBuilder();
             //URL url = new URL("https://api.weather.yandex.ru/v2/forecast?lat=53.40716171&lon=58.98028946&lang=ru_RU");
-            URL url = new URL("https://api.openweathermap.org/data/2.5/weather?lat=53.40716171&lon=58.98028946&appid=" + token + "&lang=ru&units=metric");
+            URL url = new URL("https://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon="+ lon + "&appid=" + token + "&lang=ru&units=metric");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             int responseCode = connection.getResponseCode();
@@ -73,7 +73,7 @@ public class Weather {
             String temp = rootNode.get("main").get("temp").asText();
             String windSpeed = rootNode.get("wind").get("speed").asText();
 
-            return "Температура в Магнитогорске: " + temp
+            return "Погода в городе - " + city + " - температура: " + temp
                     + ", скорость ветра: " + windSpeed + ", Состояние: " + condition;
         } catch (Exception e) {
             e.printStackTrace(System.out);

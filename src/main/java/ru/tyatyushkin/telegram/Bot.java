@@ -206,8 +206,11 @@ public class Bot {
             if (text.toLowerCase().contains("адвокат")) {
                 telegram.sendMessage(chatId, "Адвокат - всегда пиву рад!");
             }
-            if (text.toLowerCase().contains("погода")) {
-                telegram.sendMessage(chatId, weather.getWeather());
+            if (text.toLowerCase().startsWith("пмгн")) {
+                telegram.sendMessage(chatId, weather.getWeather("Магнитогорск", "53.40716171", "58.98028946"));
+            }
+            if (text.toLowerCase().startsWith("пмск")) {
+                telegram.sendMessage(chatId, weather.getWeather("Москва", "53.40716171", "58.98028946"));
             }
             if (text.toLowerCase().contains("ебуняка")) {
                 telegram.sendMessage(chatId, "редка кака");
