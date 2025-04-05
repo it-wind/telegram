@@ -1,0 +1,76 @@
+name: Pipeline for test Bot
+
+on:
+  push:
+    branches:
+      - masterplan
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      VERSION: 0.0.1
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17' # Specify the Java version required
+          distribution: 'adopt'
+
+      - name: Build with Maven
+        run: mvn clean install
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Docker build
+        run: docker build --build-arg VERSION=${{ env.VERSION }} -t tyatyushkin/telegram:${{ env.VERSION }}-beta .
+
+      - name: Docker push
+        run: docker push tyatyushkin/telegram:${{ env.VERSION }}-beta
+
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'  # Ensure this matches the version in your pom.xml
+          distribution: 'adopt'
+
+      - name: Run tests
+        run: mvn test
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      VERSION: 0.0.1
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Copy docker-compose.yml to server
+        run: scp -o StrictHostKeyChecking=no docker-compose.yml root@${{ vars.BASTION }}:/opt/compose/telegram-beta/docker-compose.yml
+
+      - name: Deploy to server
+        run: |
+          ssh -o StrictHostKeyChecking=no root@${{ vars.BASTION }} '
+          docker stop telegram-beta || true && docker rm telegram-beta || true &&
+          docker pull tyatyushkin/telegram:${{ env.VERSION }}-beta &&
+          docker run -e TG_TOKEN=${{ secrets.TG_TOKEN_TEST }} -e X_TOKEN=${{ secrets.X_TOKEN}} -e CHAT_ID=${{ secrets.CHAT_ID_TEST }} -e X_USERNAME=${{ vars.X_USERNAME }} -e Y_TOKEN=${{ secrets.Y_TOKEN}} -e CHANNEL_ID=${{ vars.CHANNEL_ID }} -e TEST_MODE=${{ vars.TEST_MODE }} -e W_TOKEN=${{ secrets.W_TOKEN }} -d --name telegram-beta tyatyushkin/telegram:${{ env.VERSION }}-beta'
