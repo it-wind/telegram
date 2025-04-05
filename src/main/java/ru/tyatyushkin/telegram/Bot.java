@@ -209,6 +209,9 @@ public class Bot {
             if (text.toLowerCase().contains("погода")) {
                 telegram.sendMessage(chatId, weather.getWeather());
             }
+            if (text.toLowerCase().contains("ебуняка")) {
+                telegram.sendMessage(chatId, "редка кака");
+            }
         }
     }
 
