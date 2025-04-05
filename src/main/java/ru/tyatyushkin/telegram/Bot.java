@@ -210,7 +210,7 @@ public class Bot {
                 telegram.sendMessage(chatId, weather.getWeather("Магнитогорск", "53.40716171", "58.98028946"));
             }
             if (text.toLowerCase().startsWith("пмск")) {
-                telegram.sendMessage(chatId, weather.getWeather("Москва", "53.40716171", "58.98028946"));
+                telegram.sendMessage(chatId, weather.getWeather("Москва", "55.753215", "37.622504"));
             }
             if (text.toLowerCase().contains("ебуняка")) {
                 telegram.sendMessage(chatId, "редка кака");
