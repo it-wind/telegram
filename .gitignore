@@ -63,3 +63,6 @@ build/
 /src/
 /.idea/
 /dependency-reduced-pom.xml
+
+### Claude Code ###
+.claude/
