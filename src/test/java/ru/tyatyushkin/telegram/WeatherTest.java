@@ -14,7 +14,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,10 +45,8 @@ class WeatherTest {
         when(mockConnection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
         when(mockConnection.getInputStream()).thenReturn(new ByteArrayInputStream(mockResponse.getBytes()));
         
-        try (MockedConstruction<URL> mockedUrl = mockConstruction(URL.class, 
-            (mock, context) -> {
-                when(mock.openConnection()).thenReturn(mockConnection);
-            })) {
+        try (MockedConstruction<URL> ignored = mockConstruction(URL.class, 
+            (mock, context) -> when(mock.openConnection()).thenReturn(mockConnection))) {
             
             String result = weather.getWeather(TEST_CITY, TEST_LAT, TEST_LON);
             
@@ -67,10 +64,8 @@ class WeatherTest {
         when(mockConnection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_UNAUTHORIZED);
         when(mockConnection.getResponseMessage()).thenReturn("Unauthorized");
         
-        try (MockedConstruction<URL> mockedUrl = mockConstruction(URL.class, 
-            (mock, context) -> {
-                when(mock.openConnection()).thenReturn(mockConnection);
-            })) {
+        try (MockedConstruction<URL> ignored = mockConstruction(URL.class, 
+            (mock, context) -> when(mock.openConnection()).thenReturn(mockConnection))) {
             
             String result = weather.getWeather(TEST_CITY, TEST_LAT, TEST_LON);
             
@@ -80,11 +75,9 @@ class WeatherTest {
     
     @Test
     @DisplayName("Обработка исключения при запросе")
-    void testGetWeatherException() throws Exception {
-        try (MockedConstruction<URL> mockedUrl = mockConstruction(URL.class, 
-            (mock, context) -> {
-                when(mock.openConnection()).thenThrow(new IOException("Connection failed"));
-            })) {
+    void testGetWeatherException() {
+        try (MockedConstruction<URL> ignored = mockConstruction(URL.class, 
+            (mock, context) -> when(mock.openConnection()).thenThrow(new IOException("Connection failed")))) {
             
             String result = weather.getWeather(TEST_CITY, TEST_LAT, TEST_LON);
             
@@ -100,10 +93,8 @@ class WeatherTest {
         when(mockConnection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
         when(mockConnection.getInputStream()).thenReturn(new ByteArrayInputStream(mockResponse.getBytes()));
         
-        try (MockedConstruction<URL> mockedUrl = mockConstruction(URL.class, 
-            (mock, context) -> {
-                when(mock.openConnection()).thenReturn(mockConnection);
-            })) {
+        try (MockedConstruction<URL> ignored = mockConstruction(URL.class, 
+            (mock, context) -> when(mock.openConnection()).thenReturn(mockConnection))) {
             
             String result = weather.getWeather(TEST_CITY, TEST_LAT, TEST_LON);
             
@@ -117,7 +108,7 @@ class WeatherTest {
         when(mockConnection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
         when(mockConnection.getInputStream()).thenReturn(new ByteArrayInputStream("{}".getBytes()));
         
-        try (MockedConstruction<URL> mockedUrl = mockConstruction(URL.class, 
+        try (MockedConstruction<URL> ignored = mockConstruction(URL.class, 
             (mock, context) -> {
                 String urlString = (String) context.arguments().get(0);
                 assertTrue(urlString.contains("lat=" + TEST_LAT));
@@ -147,10 +138,8 @@ class WeatherTest {
         when(mockConnection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
         when(mockConnection.getInputStream()).thenReturn(new ByteArrayInputStream(mockResponse.getBytes()));
         
-        try (MockedConstruction<URL> mockedUrl = mockConstruction(URL.class, 
-            (mock, context) -> {
-                when(mock.openConnection()).thenReturn(mockConnection);
-            })) {
+        try (MockedConstruction<URL> ignored = mockConstruction(URL.class, 
+            (mock, context) -> when(mock.openConnection()).thenReturn(mockConnection))) {
             
             String result = weather.getWeather(TEST_CITY, TEST_LAT, TEST_LON);
             
