@@ -36,9 +36,6 @@ public class Weather {
         conditionTranslations.put("thunderstorm-with-hail", "Гроза с градом");
     }
 
-    private static String translateCondition(String condition) {
-        return conditionTranslations.getOrDefault(condition, "Неизвестное состояние");
-    }
 
     public Weather(String w_token) {
         this.token = w_token;
