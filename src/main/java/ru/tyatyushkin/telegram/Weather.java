@@ -63,11 +63,19 @@ public class Weather {
                 in.close();
             } else {
                 System.out.println("Error: " + responseCode + " - " + connection.getResponseMessage());
+                connection.disconnect();
+                return null;
             }
             connection.disconnect();
 
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(content.toString());
+
+            // Check if required fields exist
+            if (rootNode.get("weather") == null || rootNode.get("weather").get(0) == null ||
+                rootNode.get("main") == null || rootNode.get("wind") == null) {
+                return null;
+            }
 
             String condition = rootNode.get("weather").get(0).get("description").asText();
             String temp = rootNode.get("main").get("temp").asText();
