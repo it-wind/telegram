@@ -13,30 +13,6 @@ import java.util.Map;
 public class Weather {
     private final String token;
 
-    private static final Map<String, String> conditionTranslations = new HashMap<>();
-
-    static {
-        // Инициализируем карту переводов
-        conditionTranslations.put("clear", "Ясно");
-        conditionTranslations.put("partly-cloudy", "Малооблачно");
-        conditionTranslations.put("cloudy", "Облачно с прояснениями");
-        conditionTranslations.put("overcast", "Пасмурно");
-        conditionTranslations.put("drizzle", "Морось");
-        conditionTranslations.put("light-rain", "Небольшой дождь");
-        conditionTranslations.put("rain", "Дождь");
-        conditionTranslations.put("heavy-rain", "Сильный дождь");
-        conditionTranslations.put("showers", "Ливень");
-        conditionTranslations.put("wet-snow", "Дождь со снегом");
-        conditionTranslations.put("light-snow", "Небольшой снег");
-        conditionTranslations.put("snow", "Снег");
-        conditionTranslations.put("snow-showers", "Снегопад");
-        conditionTranslations.put("hail", "Град");
-        conditionTranslations.put("thunderstorm", "Гроза");
-        conditionTranslations.put("thunderstorm-with-rain", "Дождь с грозой");
-        conditionTranslations.put("thunderstorm-with-hail", "Гроза с градом");
-    }
-
-
     public Weather(String w_token) {
         this.token = w_token;
     }
